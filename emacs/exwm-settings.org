@@ -1,0 +1,201 @@
+#+title: EXWM の設定
+#+author: yam-k
+#+language: ja
+
+* Linuxの時だけ設定を有効にする
+Winsowsでは邪魔なだけなので、 =system-type= で選り分ける。
+括弧を閉じるのは[[*設定を閉じる][設定を閉じる]]のところ。
+
+#+begin_src emacs-lisp
+  ;;;; 設定するのはLinuxの時だけ ---------------------------------------
+  (when (eq system-type 'gnu/linux)
+    (package-install 'exwm)
+#+end_src
+
+* 設定の反映をパッケージ読み込み後にする
+exwmを起動するまで設定を読み込まない。
+括弧を閉じるのは[[*設定を閉じる][設定を閉じる]]のところ。
+
+#+begin_src emacs-lisp
+  ;;;; exwmを読み込んだ後で設定する ------------------------------------
+  (with-eval-after-load 'exwm
+#+end_src
+
+* 表示領域を最大に
+する。
+
+#+begin_src emacs-lisp
+  ;;;; バーとかを消す --------------------------------------------------
+  (setopt
+   menu-bar-mode nil
+   tool-bar-mode nil
+   scroll-bar-mode nil
+   fringe-mode 1
+   tab-bar-show nil
+   )
+#+end_src
+
+* モードラインに時計を表示
+する。
+
+#+begin_src emacs-lisp
+  ;;;; 時計を表示 ------------------------------------------------------
+  (setopt
+   display-time-format "[%F(%a) %R]"
+   display-time-mode t
+   )
+#+end_src
+
+* バッファ名をわかりやすく
+する。
+
+#+begin_src emacs-lisp
+  ;;;; バッファ名をわかりやすく ----------------------------------------
+  (add-hook 'exwm-update-class-hook
+            (lambda ()
+              (exwm-workspace-rename-buffer exwm-class-name)))
+#+end_src
+
+* システムトレイ
+使う。
+
+#+begin_src emacs-lisp
+  ;;;; システムトレイ --------------------------------------------------
+  (require 'exwm-systemtray)
+  (exwm-systemtray-mode)
+#+end_src
+
+* フローティングウィンドウの枠
+太くする。
+
+#+begin_src emacs-lisp
+  ;;;; フローティングウィンドウの枠 ------------------------------------
+  (setopt
+   exwm-floating-border-width 3
+   exwm-floating-border-color "#ffbbee"
+   )
+#+end_src
+
+* キーバインド
+** 基本的なもの
+マニュアル通りに。
+
+#+begin_src emacs-lisp
+  ;;;; システム系?のキーバインド ---------------------------------------
+  (exwm-input-set-key (kbd "s-r") #'exwm-reset)
+  (exwm-input-set-key (kbd "s-&")
+                      (lambda (command)
+                        (interactive (list (read-shell-command "$ ")))
+                        (start-process-shell-command command nil command)))
+#+end_src
+
+** シミュレーションキー
+非emacsなプログラムにもEmacsキーバインドを強制する。
+
+#+begin_src emacs-lisp
+  ;;;; シミュレーションキー --------------------------------------------
+  (setopt
+   exwm-input-simulation-keys `(
+                                (,(kbd "C-b") . [left])
+                                (,(kbd "C-f") . [right])
+                                (,(kbd "C-p") . [up])
+                                (,(kbd "C-n") . [down])
+                                (,(kbd "C-a") . [home])
+                                (,(kbd "C-e") . [end])
+                                (,(kbd "M-v") . [prior])
+                                (,(kbd "C-v") . [next])
+                                (,(kbd "C-h") . [backspace])
+                                (,(kbd "C-d") . [delete])
+                                (,(kbd "C-k") . [S-end delete])
+                                )
+   )
+#+end_src
+
+** ワークスペース関連
+=Win+w= でワークスペース切り替え。
+=Win+0〜9= でワークスペースを作成しつつ切り替え。
+
+#+begin_src emacs-lisp
+  ;;;; ワークスペースの切り替え ----------------------------------------
+  (exwm-input-set-key (kbd "s-w") #'exwm-workspace-switch)
+  (mapcar (lambda (i)
+            (exwm-input-set-key (kbd (format "s-%d" i))
+                                (lambda ()
+                                  (interactive)
+                                  (exwm-workspace-switch-create i))))
+          (number-sequence 0 9))
+#+end_src
+
+** オーディオコントロール
+割り当てている関数はutils/init-helper.elで定義。
+
+#+begin_src emacs-lisp
+  ;;;; pulseaudio-utilsのコントロール ----------------------------------
+  (exwm-input-set-key (kbd "<XF86AudioRaiseVolume>") #'audio-raise-volume)
+  (exwm-input-set-key (kbd "<XF86AudioLowerVolume>") #'audio-lower-volume)
+  (exwm-input-set-key (kbd "<XF86AudioMute>") #'audio-toggle-mute)
+  ;; (exwm-input-set-key (kbd "s->") #'audio-raise-volume)
+  ;; (exwm-input-set-key (kbd "s-<") #'audio-lower-volume)
+  ;; (exwm-input-set-key (kbd "s-M") #'audio-toggle-mute)
+#+end_src
+
+* exwm-x
+使うのをやめた。
+
+#+begin_src emacs-lisp
+  ;; ;;;; exwm-x ----------------------------------------------------------
+  ;; (package-install 'exwm-x)
+
+  ;; (require 'exwm-x)
+
+  ;; (when (functionp 'global-tab-line-mode)
+  ;;   (setopt global-tab-line-mode nil))
+
+  ;; (when (functionp 'tab-bar-mode)
+  ;;   (setopt tab-line-mode nil))
+
+  ;; (setopt use-dialog-box nil)
+
+  ;; (add-hook 'exwm-update-class-hook #'exwmx-grocery--rename-exwm-buffer)
+  ;; (add-hook 'exwm-update-title-hook #'exwmx-grocery--rename-exwm-buffer)
+
+  ;; (add-hook 'exwm-manage-finish-hook #'exwmx-grocery--manage-finish-function)
+
+  ;; (exwmx-floating-smart-hide)
+
+  ;; (exwmx-button-enable)
+
+  ;; (define-key global-map (kbd "C-t") nil)
+  ;; (push ?\C-t exwm-input-prefix-keys)
+
+  ;; (exwmx-input-set-key (kbd "C-t ;") #'exwmx-dmenu)
+  ;; (exwmx-input-set-key (kbd "C-t :") #'exwmx-appmenu-simple)
+  ;; (exwmx-input-set-key (kbd "C-t C-e") #'exwmx-sendstring)
+  ;; (exwmx-input-set-key (kbd "C-t C-r") #'exwmx-appconfig)
+
+  ;; (exwmx-input-set-key (kbd "C-c y") #'exwmx-sendstring-from-kill-ring)
+
+  ;; (exwmx-input-set-key (kbd "C-t C-t") #'exwmx-button-toggle-keyboard)
+
+  ;; (push ?\C-q exwm-input-prefix-keys)
+  ;; (define-key exwm-mode-map [?\C-q] #'exwm-input-send-next-key)
+
+  ;; (require 'exwm-xim)
+  ;; (push ?\C-\\ exwm-input-prefix-keys)
+
+  ;;   ;; (if (equal (getenv "XMODIFIERS") "@im=exwm-xim")
+  ;;   ;;     (exwm-xim-enable)
+  ;;   ;;   (message "EXWM-X: Do not enable exwm-xim, for environment XMODIFIERS is set incorrect."))
+
+  ;; (define-key exwm-mode-map (kbd "C-c C-t C-f") #'exwmx-floating-toggle-floating)
+#+end_src
+
+* 設定を閉じる
+[[*Linuxの時だけ設定を有効にする][Linuxの時だけ設定を有効にする]]で開いた =when= と、
+[[*設定の反映をパッケージ読み込み後にする][設定の反映をパッケージ読み込み後にする]]で開いた =with-eval-after-load=
+を閉じる。
+
+#+begin_src emacs-lisp
+  ) ;with-eval-after-loadを閉じる
+  ) ;whenを閉じる
+#+end_src

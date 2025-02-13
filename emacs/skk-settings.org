@@ -1,0 +1,195 @@
+#+title: SKKの設定
+#+author: yam-k
+#+language: ja
+
+* 辞書のディレクトリ
++=skk-get= で辞書をダウンロードするディレクトリ。+
++=package-install= の前に設定しておかないと、上手く動いてくれない。+
+予め用意した辞書を使うようにしたけど、ディレクトリ参照用の変数として
+残しておく。
+
+#+begin_src emacs-lisp
+  ;;;; 辞書ディレクトリ ------------------------------------------------
+  (setopt
+   skk-get-jisyo-directory (expand-file-name "skk-jisyo"
+                                             user-emacs-directory)
+   )
+#+end_src
+
+* ddskkのインストール
+インストール。
+
+#+begin_src emacs-lisp
+  ;;;; ddskkのインストール ---------------------------------------------
+  (package-install 'ddskk)
+#+end_src
+
+* 辞書の設定
+辞書の設定。
+UTF-8な辞書を使いたいので、予め用意した辞書を使う。
+utils/jisyo_convert.shが、SKK-JISYOをUTF-8に変換するスクリプト。
+
+#+begin_src emacs-lisp
+  ;;;; 使う辞書 --------------------------------------------------------
+  (setopt
+   skk-jisyo-code 'utf-8
+   skk-large-jisyo (expand-file-name "SKK-JISYO.L.utf8"
+                                     skk-get-jisyo-directory)
+   skk-itaiji-jisyo (expand-file-name "SKK-JISYO.itaiji.utf8"
+                                      skk-get-jisyo-directory)
+   skk-extra-jisyo-file-list `(
+                               ,(expand-file-name "SKK-JISYO.JIS2.utf8"
+                                                  skk-get-jisyo-directory)
+                               ,(expand-file-name "SKK-JISYO.lisp.utf8"
+                                                  skk-get-jisyo-directory)
+                               ,(expand-file-name "SKK-JISYO.emoji"
+                                                  skk-get-jisyo-directory)
+                               ,(expand-file-name "SKK-JISYO.emoji.utf8"
+                                                  skk-get-jisyo-directory)
+                               )
+   )
+  ;; (unless (file-exists-p skk-get-jisyo-directory)
+  ;;   (skk-get skk-get-jisyo-directory))
+  ;; (setopt
+  ;;  skk-large-jisyo (expand-file-name "SKK-JISYO.L"
+  ;;                                    skk-get-jisyo-directory)
+  ;;  skk-itaiji-jisyo (expand-file-name "SKK-JISYO.itaiji"
+  ;;                                     skk-get-jisyo-directory)
+  ;;  skk-extra-jisyo-file-list `(
+  ;;                              ,(expand-file-name "SKK-JISYO.JIS2"
+  ;;                                                 skk-get-jisyo-directory)
+  ;;                              )
+  ;;  )
+#+end_src
+
+* 日本語入力のデフォルトをskkに
+=C-\= で起動する入力メソッドをskkにする。
+
+#+begin_src emacs-lisp
+  ;;;; デフォルトの入力メソッドをskkに ---------------------------------
+  (setopt
+   default-input-method "japanese-skk"
+   )
+#+end_src
+
+* skkの起動キーバインド
+設定しない。
+=C-\= で生きていく。
+
+#+begin_src emacs-lisp
+  ;; ;;;; skk起動用キーバインド -------------------------------------------
+  ;; (setkey global-map
+  ;;   "C-x C-j" #'skk-mode
+  ;;   "C-x j" #'skk-auto-fill-mode
+  ;;   )
+#+end_src
+
+* 半角カナを入力できるようにする
+=C-q= で半角カナの入力モードを起動。
+
+#+begin_src emacs-lisp
+  ;;;; 半角カナの直接入力を許可 ----------------------------------------
+  (setopt
+   skk-use-jisx0201-input-method t
+   )
+#+end_src
+
+* 変換候補の選択に使うキー
+非emacs時に混乱したくないので、fcitx5-skkに合わせる。
+
+#+begin_src emacs-lisp
+  ;;;; 候補選択キー
+  (setopt
+   skk-henkan-show-candidates-keys
+   '(?a ?b ?c ?d ?e ?f ?g ?h ?i ?j ?k ?l ?m ?n ?o ?p ?q ?r ?s ?t ?u)
+   )
+#+end_src
+
+* 変換候補に半角カナを
+変換候補に半角カナを含める。
+
+#+begin_src emacs-lisp
+  ;;;; 変換候補に半角カナを --------------------------------------------
+  (setopt
+   skk-search-katakana 'jisx0201-kana
+   )
+#+end_src
+
+* 変換中断時の送り仮名
+消す。
+
+#+begin_src emacs-lisp
+  ;;;; 変換中断時に送り仮名を消す --------------------------------------
+  (setopt
+   skk-delete-okuri-when-quit t
+   )
+#+end_src
+
+* 変換候補の表示
+インライン。
+
+#+begin_src emacs-lisp
+  ;;;; 変換候補の表示 --------------------------------------------------
+  (setopt
+   skk-show-candidates-always-pop-to-buffer nil
+   skk-show-tooltip nil
+   skk-show-inline t
+   )
+#+end_src
+
+* 変換候補のアノテーションの表示
+する。
+
+#+begin_src emacs-lisp
+  ;;;; アノテーションを表示 --------------------------------------------
+  (setopt
+   skk-show-annotation t
+   skk-show-annotation-delay 0
+   )
+#+end_src
+
+* skkの状態の表示
+モードラインでのskkのモードの表示をカスタマイズ。
+全角1文字分の範囲で設定してみた。
+
+#+begin_src emacs-lisp
+  ;;;; モードラインでのskkの状態表 -------------------------------------
+  (setopt
+   skk-latin-mode-string "[_A]"
+   skk-hiragana-mode-string "[あ]"
+   skk-katakana-mode-string "[ア]"
+   skk-jisx0208-latin-mode-string "[Ａ]"
+   skk-jisx0201-mode-string "[_ｱ]"
+   skk-abbrev-mode-string "[aA]"
+   )
+#+end_src
+
+* skkの状態に応じたカーソルカラー
+カーソルの色でも変換モードを判別可能にする。
+
+#+begin_src emacs-lisp
+  (setopt
+   skk-use-color-cursor t
+   skk-cursor-latin-color "dark red"
+   skk-cursor-abbrev-color "dodger blue"
+   skk-cursor-hiragana-color "violet"
+   skk-cursor-jisx0201-color "green yellow"
+   skk-cursor-katakana-color "lime green"
+   skk-cursor-jisx0208-latin-color "goldenrod"
+   )
+#+end_src
+
+* isearchでもskkを使う
+何か使いづらかったので、とりあえずコメントアウト。
+
+#+begin_src emacs-lisp
+  ;; ;;;; isearchでもskk --------------------------------------------------
+  ;; (setopt
+  ;;  skk-isearch-mode-enable 'always
+  ;;  skk-isearch-start-mode 'latin
+  ;;  )
+  ;; (with-eval-after-load 'isearch
+  ;;   (add-hook isearch-mode-hook #'skk-isearch-mode-setup)
+  ;;   (add-hook isearch-mode-end-hook #'skk-isearch-mode-cleanup)
+  ;;   )
+#+end_src

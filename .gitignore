@@ -1,0 +1,9 @@
+emacs/*
+emacs/*/
+!emacs/early-init.el
+!emacs/init.el
+!emacs/*.org
+!emacs/skk-jisyo/
+!emacs/skk-jisyo/*
+!emacs/utils/
+!emacs/utils/*
