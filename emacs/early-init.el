@@ -33,9 +33,13 @@
 ;;; Code:
 
 ;;;; フォント --------------------------------------------------------
-(face-spec-set 'default '((t :font "HackGen Console NF"
-                             :height 100)))
-(face-spec-set 'fixed-pitch '((t :inherit default)))
+;; (face-spec-set 'default '((t :font "HackGen Console NF"
+;;                              :height 100)))
+;; (face-spec-set 'fixed-pitch '((t :inherit default)))
+(set-face-attribute 'default nil
+                    :family "HackGen Console NF" :height 100)
+(set-face-attribute 'fixed-pitch nil
+                    :inherit 'default)
 
 ;;;; modus-themes ----------------------------------------------------
 (setopt
