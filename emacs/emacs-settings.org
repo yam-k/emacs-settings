@@ -17,9 +17,6 @@
 Redditにあったやつをコピペした。
 当該記事のアドレスは、[[https://www.reddit.com/r/emacs/comments/12u4qr6/how_to_add_the_slimecompany_to_capecorfu/?rdt=51310]]。
 
-** utils/jisyo_convert.sh
-sedとiconvで、SKK-JISYOをutf-8に変換するスクリプト。
-
 * 準備
 ** 設定で使う値の束縛
 設定全体で使う変数束縛。
