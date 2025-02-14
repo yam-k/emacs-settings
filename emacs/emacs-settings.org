@@ -564,7 +564,7 @@ GNU Emacs 30からはOSの判断は不要かもしれない。
 #+begin_src emacs-lisp
   ;;;; switch-window ---------------------------------------------------
   (package-install 'switch-window)
-  (setq switch-window-shortcut-style 'qwerty
+  (setq switch-window-shortcut-style 'alphabet
         switch-window-input-style 'minibuffer
         switch-window-threshold 2
         )
