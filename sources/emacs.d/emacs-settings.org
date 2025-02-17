@@ -519,6 +519,14 @@ GNU Emacs 30からはOSの判断は不要かもしれない。
     )
 #+end_src
 
+** PowerShell
+PowerShell編集用モード。
+
+#+begin_src emacs-lisp
+  ;;;; powershell ------------------------------------------------------
+  (package-install 'powershell)
+#+end_src
+
 * 便利機能
 ** marginalia
 ミニバッファに表示される候補の詳細情報を表示
