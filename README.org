@@ -28,4 +28,6 @@ ddskkとexwmを常用している、普段使いのEmacsの設定。
 - utils/jisyo_convert.sh ::
   SKK-JISYOをUTF-8に変換するスクリプト。sedとiconvが必要。
 - utils/setup.sh ::
-  $HOMEに設定ファイルへのシンボリックリンクを貼るスクリプト。
+  $HOMEに設定ファイルへのシンボリックリンクを貼るbashスクリプト。
+- utils/setup.ps1 ::
+  HOMEに設定ディレクトリへのジャンクションを貼るPowerShellスクリプト。
