@@ -47,12 +47,14 @@ adviceを削除するのは、[[*package-installを元に戻す][package-install
 * 基本的な設定
 ** デフォルトの文字コード
 UTF-8。
+ここに設定しておくと、Windowsでの開始時に文字コードの確認を求められる
+ので、init.elに移した。
 
 #+begin_src emacs-lisp
   ;;; 基本的な設定 =====================================================
-  ;;;; デフォルトの文字コード ------------------------------------------
-  (set-language-environment "UTF-8")
-  (prefer-coding-system 'utf-8-emacs-unix)
+  ;; ;;;; デフォルトの文字コード ------------------------------------------
+  ;; (set-language-environment "UTF-8")
+  ;; (prefer-coding-system 'utf-8-emacs-unix)
 #+end_src
 
 ** スタートアップ画面

@@ -1,5 +1,9 @@
 ;;; init.el --- GNU Emacs settings. -*- lexical-binding: t; coding: utf-8 -*-
 
+;;;; デフォルトの文字コード ------------------------------------------
+(set-language-environment "UTF-8")
+(prefer-coding-system 'utf-8-emacs-unix)
+
 ;;;; ロードパスの設定 ------------------------------------------------
 (add-to-list 'load-path
              (expand-file-name "utils/" user-emacs-directory))
