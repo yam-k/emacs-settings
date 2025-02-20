@@ -574,7 +574,7 @@ PowerShell編集用モード。
 #+begin_src emacs-lisp
   ;;;; switch-window ---------------------------------------------------
   (package-install 'switch-window)
-  (setq switch-window-shortcut-style 'alphabet
+  (setq switch-window-shortcut-style 'quail
         switch-window-input-style 'minibuffer
         switch-window-threshold 2
         )
