@@ -81,12 +81,16 @@ exwmを起動するまで設定を読み込まない。
 マニュアル通りに。
 
 #+begin_src emacs-lisp
-  ;;;; システム系?のキーバインド ---------------------------------------
-  (exwm-input-set-key (kbd "s-r") #'exwm-reset)
-  (exwm-input-set-key (kbd "s-&")
-                      (lambda (command)
-                        (interactive (list (read-shell-command "$ ")))
-                        (start-process-shell-command command nil command)))
+     ;;;; システム系?のキーバインド ---------------------------------------
+     (exwm-input-set-key (kbd "s-r") #'exwm-reset)
+     (exwm-input-set-key (kbd "s-&")
+                         (lambda (command)
+                           (interactive (list (read-shell-command "$ ")))
+                           (start-process-shell-command command nil command)))
+     (exwm-input-set-key (kbd "s-x")
+                         (lambda (command)
+                           (interactive (list (read-shell-command "Win-x ")))
+                           (start-process-shell-command command nil command)))
 #+end_src
 
 ** シミュレーションキー
