@@ -14,7 +14,6 @@ for source in ${sources[@]}; do
     source_file=${sources_dir}/${source%|*}
     target_file=${HOME}/${source#*|}
 
-    # 作成するシンボリックリンクと同じ名前のファイルが有る時に、
     # 古いファイルを削除するか確認する。
     if [ -L ${target_file} ] || [ -f ${target_file} ]; then
         echo "${target_file} already exists. Delete old setting? (yes/no)"
@@ -22,6 +21,8 @@ for source in ${sources[@]}; do
 
         if [ -z ${answer} ] || [ ${answer} != "yes" ]; then
             continue
+        else
+            rm -f ${target_file}
         fi
     elif [ -d ${target_file} ]; then
         echo "${target_file} is directory. Delete this and make symlink? (yes/no)"
@@ -34,7 +35,7 @@ for source in ${sources[@]}; do
         fi
     fi
 
-    # --forceオプション付きでシンボリックリンクを作成。
+    # シンボリックリンクを作成。
     echo "Making symbolic link ${target_file} to ${source_file}"
     ln -s -f ${source_file} ${target_file}
     echo "Done."
