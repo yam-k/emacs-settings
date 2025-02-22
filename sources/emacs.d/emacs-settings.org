@@ -1,6 +1,7 @@
 #+title: GNU Emacs の設定
 #+author: yam-k
 #+language: ja
+#+startup: content indent
 
 * 設定の構成
 ** 設定に使っているファイル
