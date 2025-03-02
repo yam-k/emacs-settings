@@ -133,7 +133,6 @@ ARGSは、[KEY FUNCTION]..."
   (call-process "pactl" nil nil nil
                 "set-sink-mute" "@DEFAULT_SINK@" "toggle"))
 
-
 ;;; feature として登録 ===============================================
 (provide 'init-helper)
 
