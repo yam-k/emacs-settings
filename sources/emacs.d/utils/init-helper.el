@@ -63,7 +63,7 @@ FUNCはpackage-install、ARGSはpackage-installに渡す引数。"
                   (apply func args)))))
 
 ;;;; define-keyの代替マクロ ------------------------------------------
-(defmacro setkey (map key function &rest args)
+(defmacro setkey (map &rest args)
   "キーバインド設定用マクロ.
 
 (setkey global-map
@@ -75,13 +75,14 @@ MAPは設定したいキーマップ、KEYは`kbd'に渡せるキーシーケン
 FUNCTIONはキーシーケンスに対して設定したい関数。
 ARGSは、[KEY FUNCTION]..."
   (declare (indent defun))
-  (let ((sets (list (cons key function))))
-    (while args
-      (add-to-list 'sets (cons (pop args) (pop args))))
-    `(progn
-       ,@(mapcar (lambda (set)
-                   `(define-key ,map (kbd ,(car set)) ,(cdr set)))
-                 (reverse sets)))))
+  (when args
+    (let ((sets '()))
+      (while args
+        (add-to-list 'sets (cons (pop args) (pop args))))
+      `(progn
+         ,@(mapcar (lambda (set)
+                     `(define-key ,map (kbd ,(car set)) ,(cdr set)))
+                   (reverse sets))))))
 
 ;;;; add-to-list -----------------------------------------------------
 (defun add-elements-to-list (list-var &rest elements)
