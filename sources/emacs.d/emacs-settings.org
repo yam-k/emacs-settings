@@ -548,7 +548,8 @@ common-lispの開発環境。
   (package-install 'slime-company)
 
   (setopt
-   slime-lisp-implementations '((sbcl ("sbcl")))
+   slime-lisp-implementations '((ros ("ros" "run"))
+                                (sbcl ("sbcl")))
    slime-kill-without-query-p t
    common-lisp-style-default "sbcl"
    slime-repl-history-file (expand-file-name ".slime-history.eld" tmp-dir)
@@ -576,7 +577,7 @@ Emacs Lispで、コードの折り畳みをできるようにする。
   ;;;; outline-magic ---------------------------------------------------
   (package-install 'outline-magic)
 
-  (setopt outline-minor-mode-prefix (kbd "C-z C-o"))
+  ;; (setopt outline-minor-mode-prefix (kbd "C-z C-o"))
 
   (add-hook 'emacs-lisp-mode-hook #'outline-minor-mode)
 
