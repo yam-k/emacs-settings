@@ -40,10 +40,16 @@ Dropboxが前提。
 
 #+begin_src emacs-lisp
   ;;;; キーバインド ----------------------------------------------------
-  (define-prefix-command 'org-map)
-  ;; (setkey global "C-c o" 'org-map)
-  (setkey global-bind-set "o" 'org-map)
-  (setkey org-map
+  ;; (define-prefix-command 'org-map)
+  ;; ;; (setkey global "C-c o" 'org-map)
+  ;; (setkey global-bind-set "o" 'org-map)
+  ;; (setkey org-map
+  ;;   "a" #'org-agenda
+  ;;   "c" #'org-capture
+  ;;   "l" #'org-store-link
+  ;;   )
+
+  (keybind-helper-define-keymap nil "org" "o"
     "a" #'org-agenda
     "c" #'org-capture
     "l" #'org-store-link
