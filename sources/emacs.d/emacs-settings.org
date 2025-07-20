@@ -1,0 +1,564 @@
+#+title: GNU Emacs の設定
+#+author: yam-k
+#+language: ja
+#+startup: content indent
+
+* 準備
+** 設定で使う値の束縛
+設定全体で使う変数束縛。
+このletは、[[*全体を閉じる][全体を閉じる]]の箇所まで開きっぱなし。
+
+#+begin_src emacs-lisp
+  ;;; 準備 =============================================================
+  ;;;; 設定で使う変数の束縛 --------------------------------------------
+  (let ((tmp-dir (expand-file-name "tmp/" user-emacs-directory)) ;自動生成ファイルを放り込むディレクトリ
+        )
+#+end_src
+
+** package.elの設定
+archivesはMELPA優先。
+
+#+begin_src emacs-lisp
+  ;;;; package.elの設定 ------------------------------------------------
+  (package-initialize)
+  (add-to-list 'package-archives
+               '("melpa" . "https://melpa.org/packages/"))
+  (add-to-list 'package-archive-priorities '("melpa" . 10))
+#+end_src
+
+* 基本的な設定
+** スタートアップ画面
+非表示。
+
+#+begin_src emacs-lisp
+  ;;;; スタートアップ画面は非表示 --------------------------------------
+  (setopt
+   inhibit-startup-message t
+   )
+#+end_src
+
+** 1行の文字数
+1行72文字。73文字目に目印を表示。
+
+#+begin_src emacs-lisp
+  ;;;; 1行の文字数 -----------------------------------------------------
+  (setopt
+   fill-column 72
+   global-display-fill-column-indicator-mode t
+  )
+#+end_src
+
+** 非表示文字の表示
+非表示文字を色や代替文字で可視化する。
+
+#+begin_src emacs-lisp
+  ;;;; 非表示文字を色や代替文字で可視化 --------------------------------
+  (setopt
+   global-whitespace-mode t
+   whitespace-style '( ;表示する非表示文字
+                      face
+                      trailing
+                      tabs
+                      tab-mark
+                      empty
+                      ;; spaces
+                      ;; spcae-mark
+                      newline
+                      newline-mark
+                      )
+   )
+#+end_src
+
+** モードラインへの行数と桁数の表示
+する。
+
+#+begin_src emacs-lisp
+  ;;;; モードラインに行数と桁数を表示 ----------------------------------
+  (setopt
+   line-number-mode t
+   column-number-mode t
+   )
+#+end_src
+
+** 編集領域への行数の表示
+する。4桁で。
+
+#+begin_src emacs-lisp
+  ;;;; 編集領域への論理行数の表示 --------------------------------------
+  (setopt
+   display-line-numbers t
+   display-line-numbers-width 4
+   )
+#+end_src
+
+** 現在行のハイライト
+する。
+
+#+begin_src emacs-lisp
+  ;;;; 現在行のハイライト ----------------------------------------------
+  (setopt
+   global-hl-line-mode t
+   )
+#+end_src
+
+** 対応する括弧の強調
+ブロック全体をハイライト表示。
+
+#+begin_src emacs-lisp
+  ;;;; 対応する括弧の強調 ----------------------------------------------
+  (setopt
+   show-paren-mode t
+   show-paren-style 'expression
+   )
+#+end_src
+
+** インデントにタブ文字を使用しない
+スペースにする。
+
+#+begin_src emacs-lisp
+  ;;;; タブ文字は使わない ----------------------------------------------
+  (setopt
+   indent-tabs-mode nil
+   )
+#+end_src
+
+** スクロールは1行ずつ
+デフォルトのぴょんぴょん跳ぶようなスクロールが嫌いなので、
+今時のエディタっぽくスクロールさせる。
+100より大きい値であればOK。
+
+#+begin_src emacs-lisp
+  ;;;; 画面端でのスクロールは1行ずつ -----------------------------------
+  (setopt
+   scroll-conservatively 101
+   )
+#+end_src
+
+** 'C-h'をBackspaceに
+外せない。helpは'F1'とか'M-x help'で。
+
+#+begin_src emacs-lisp
+  ;;;; C-h を Backspace に ---------------------------------------------
+  (keymap-set global-map "C-h" #'delete-backward-char)
+#+end_src
+
+** ミニバッファのUI
+fido-vertical-mode。
+
+#+begin_src emacs-lisp
+  ;;;; fido-vertical-modeを使う ----------------------------------------
+  (setopt
+   fido-vertical-mode t
+   )
+#+end_src
+
+** yes/noの選択肢をy/nにする
+yes/noの入力を求められる場面でy/nで回答できるようにする。
+
+#+begin_src emacs-lisp
+  ;;;; 確認対応は簡潔に ------------------------------------------------
+  (setopt
+   use-short-answers t
+   )
+#+end_src
+
+** 操作履歴を記録する
+操作履歴は保存するけど、保存ファイル自体はtmpに突っ込んでおく。
+
+#+begin_src emacs-lisp
+  ;;;; 操作履歴の保存 --------------------------------------------------
+  (setopt
+   savehist-mode t
+   savehist-file (expand-file-name "history" tmp-dir)
+   )
+#+end_src
+
+** 自動生成ファイルを退避する
+*** custom変数の設定の退避
+custom.elを退避する。
+
+#+begin_src emacs-lisp
+  ;;;; 自動生成ファイルの退避 ------------------------------------------
+  ;;;;; custom変数の設定の退避
+  (setopt
+     custom-file (expand-file-name "custom.el" tmp-dir)
+     )
+#+end_src
+
+*** バックアップファイル(filename~)
+~付きファイルを退避する。
+
+#+begin_src emacs-lisp
+  ;;;;; ~付きファイルの退避
+  (setopt ;バックアップファイルの保存先
+   backup-directory-alist `((".*" . ,tmp-dir))
+   version-control t
+   delete-old-versions t
+   kept-new-versions 5
+   )
+  ;; (setopt make-backup-files nil) ;作らない場合
+#+end_src
+
+*** ロックファイル(.#filename)
+個人利用なのでロックファイル(.#filename)は要らない。
+
+#+begin_src emacs-lisp
+  ;;;;; .#付きファイルは作らない
+  (setopt create-lockfiles nil)
+#+end_src
+
+*** オートセーブファイル(#filename#)
+作らない。
+
+#+begin_src emacs-lisp
+  ;;;;; #filename#は作らない
+  ;; (setopt
+  ;;  auto-save-file-name-transforms `((".*" ,tmp-dir t))
+  ;;  auto-save-timeout 30
+  ;;  auto-save-interval 300
+  ;;  )
+  (setopt auto-save-default nil)
+#+end_src
+
+*** オートセーブリスト(.saves-xxx)
+作らない。
+
+#+begin_src emacs-lisp
+  ;;;;; .saces-xxxは作らない
+  ;; (setopt
+  ;;  auto-save-list-file-prefix (expand-file-name "saves-" tmp-dir)
+  ;;  )
+  (setopt auto-save-list-file-prefix nil)
+#+end_src
+
+** diredを2画面ファイラっぽい挙動にする
+diredを2枚開いた時のデフォルトの操作対象を相手方ウィンドウに。
+
+#+begin_src emacs-lisp
+  ;;;; dired -----------------------------------------------------------
+  (setopt
+   dired-dwim-target t ;diredを2画面ファイラっぽくする
+   )
+#+end_src
+
+* キーバインド
+** package
+#+begin_src emacs-lisp
+  (keymap-utils-static-map-set "package" "p"
+    "a" #'package-autoremove
+    "d" #'package-delete
+    "l" #'package-list-packages
+    "u" #'package-upgrade-all
+    )
+#+end_src
+
+** いろいろトグル
+#+begin_src emacs-lisp
+  (keymap-utils-static-map-set "toggle" "t"
+    "T" #'util-commands-toggle-tab-bar
+    "f" #'util-commands-toggle-fringe
+    "i" #'display-fill-column-indicator-mode
+    "l" #'display-line-numbers-mode
+    "m" #'menu-bar-mode
+    "s" #'scroll-bar-mode
+    "t" #'tool-bar-mode
+    "w" #'global-whitespace-mode
+    "RET" #'toggle-truncate-lines
+    )
+#+end_src
+
+** corfu/cape
+#+begin_src emacs-lisp
+  (keymap-utils-static-map-set "corfu/cape" "c"
+    "p" #'completion-at-point
+    "t" #'complete-tag
+    "d" #'cape-dabbrev
+    "h" #'cape-history
+    "f" #'cape-file
+    "k" #'cape-keyword
+    "s" #'cape-symbol
+    "a" #'cape-abbrev
+    "i" #'cape-ispell
+    "l" #'cape-line
+    "w" #'cape-dict
+    )
+#+end_src
+
+** magit
+#+begin_src emacs-lisp
+  (keymap-utils-static-map-set "magit" "m"
+    "d" #'magit-dispatch
+    "i" #'magit-init
+    "s" #'magit-status
+    )
+#+end_src
+
+** 開発環境
+#+begin_src emacs-lisp
+  (keymap-utils-static-map-set "develop" "d"
+    "e" #'eshell
+    "i" #'ielm
+    "s" #'slime
+    )
+#+end_src
+
+* 補完入力
+** corfu/cape
+companyから乗り換えた。
+
+#+begin_src emacs-lisp
+  ;;;; 補完入力 --------------------------------------------------------
+  (package-install 'corfu)
+  (package-install 'cape)
+
+  (setopt
+   corfu-auto t
+   corfu-cycle t
+   corfu-quit-no-match t
+   corfu-popupinfo-mode t
+   global-corfu-mode t
+   )
+  (keymap-set corfu-map "SPC" #'corfu-insert-separator)
+
+  (add-to-list 'completion-at-point-functions #'cape-dabbrev)
+  (add-to-list 'completion-at-point-functions #'cape-file)
+  (add-to-list 'completion-at-point-functions #'cape-keyword)
+#+end_src
+
+** 候補にアイコンを表示
+関数とか変数とかのアイコンを表示させる。
+
+#+begin_src emacs-lisp
+  ;;;; 候補にアイコンを表示 --------------------------------------------
+  (package-install 'kind-icon)
+
+  (setopt kind-icon-default-face 'corfu-default)
+  (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter)
+#+end_src
+
+* org-mode
+ボリュームがあるので外に出した。
+
+#+begin_src emacs-lisp
+  ;;;; orgの設定を読み込む ---------------------------------------------
+  (init-utils-load-org
+    (expand-file-name "org-settings.org" user-emacs-directory))
+#+end_src
+
+* 開発関係
+** treesit-auto
+tree-sitterによるシンタックスハイライト用のパーサを適宜インストールして
+くれるやつ。
+
+#+begin_src emacs-lisp
+  ;;;; treesit-auto ----------------------------------------------------
+  ;; (when (eq system-type 'gnu/linux)
+  ;;   (package-install 'treesit-auto) ;tree-sitterを使い易くする
+
+  ;;   (require 'treesit-auto)
+  ;;   (treesit-auto-add-to-auto-mode-alist 'all)
+  ;;   (setopt
+  ;;    treesit-auto-install t
+  ;;    global-treesit-auto-mode t
+  ;;    )
+  ;;   )
+#+end_src
+
+** flymake
+文法チェッカー。
+
+#+begin_src emacs-lisp
+  ;;;; flymake ---------------------------------------------------------
+  (with-eval-after-load 'flymake
+    (keymap-utils-keymap-set flymake-mode-map
+      "M-n" #'flymake-goto-next-error
+      "M-p" #'flymake-goto-prev-error
+      ))
+#+end_src
+
+** magit
+git。
+
+#+begin_src emacs-lisp
+  ;;;; magit -----------------------------------------------------------
+  (package-install 'magit)
+#+end_src
+
+** slime
+common-lispの開発環境。
+
+#+begin_src emacs-lisp
+  ;;;; slime -----------------------------------------------------------
+  (package-install 'slime)
+  (package-install 'slime-company)
+
+  (setopt
+   slime-lisp-implementations '((ros ("ros"
+                                      "dynamic-space-size=4096"
+                                      "run"))
+                                (sbcl ("sbcl")))
+   slime-kill-without-query-p t
+   common-lisp-style-default "sbcl"
+   slime-repl-history-file (expand-file-name ".slime-history.eld" tmp-dir)
+   )
+
+  (with-eval-after-load 'slime
+    (slime-setup '(slime-fancy slime-cape)) ;~/.emacs.d/utils/slime-cape.el
+    )
+#+end_src
+
+** outline-magic
+.elファイルで、コードの折り畳みをできるようにする。
+
+#+begin_src emacs-lisp
+  ;;;; outline-magic ---------------------------------------------------
+  (package-install 'outline-magic)
+
+  (add-hook 'emacs-lisp-mode-hook #'outline-minor-mode)
+
+  (with-eval-after-load 'outline
+    (keymap-utils-keymap-set outline-minor-mode-map
+      "<tab>" #'outline-cycle
+      "<backtab>" #'outline-cycle-buffer ;Shift+TAB
+      ))
+#+end_src
+
+** rust
+cargo-modeを使う。
+OSがLinuxならtree-sitterも利用。
+
+#+begin_src emacs-lisp
+  ;;;; rust ------------------------------------------------------------
+  (package-install 'cargo-mode)
+  (setopt compilation-scroll-output 'first-error)
+
+  ;; (if (eq system-type 'gnu/linux)
+  ;;     (progn
+  ;;       (add-hook 'rust-ts-mode-hook #'eglot-ensure) ;tree-sitterを使う
+  ;;       (add-hook 'rust-ts-mode-hook #'cargo-minor-mode)
+  ;;       )
+  ;;   (progn
+  ;;     (package-install 'rust-mode)
+  ;;     (add-hook 'rust-mode-hook #'eglot-ensure) ;tree-sitterを使わない
+  ;;     (add-hook 'rsut-mode-hook #'cargo-minor-mode)
+  ;;     )
+  ;; )
+
+  (package-install 'rust-mode)
+  (add-hook 'rust-mode-hook #'eglot-ensure)
+  (add-hook 'rsut-mode-hook #'cargo-minor-mode)
+#+end_src
+
+** Nix
+Nix編集用モード。
+
+#+begin_src emacs-lisp
+  ;;;; nix -------------------------------------------------------------
+  (package-install 'nix-mode)
+#+end_src
+
+** PowerShell
+PowerShell編集用モード。
+
+#+begin_src emacs-lisp
+  ;;;; powershell ------------------------------------------------------
+  (package-install 'powershell)
+#+end_src
+
+* 便利機能
+** marginalia
+ミニバッファに表示される候補の詳細情報を表示
+
+#+begin_src emacs-lisp
+  ;;;; marginalia ------------------------------------------------------
+  (package-install 'marginalia)
+
+  (setopt
+   marginalia-mode t
+   )
+#+end_src
+
+** popper
+ウィンドウをポップアップ化する。
+
+#+begin_src emacs-lisp
+  ;;;; popper ----------------------------------------------------------
+  (package-install 'popper)
+  (setopt
+   popper-reference-buffers '( ;popup化するバッファのリスト
+                              messages-buffer-mode
+                              ;; special-mode
+                              ;; emacs-lisp-compilation-mode
+                              help-mode
+                              slime-repl-mode
+                              inferior-emacs-lisp-mode
+                              comint-mode
+                              compilation-mode
+                              )
+   popper-mode t
+   popper-echo-mode t
+   )
+
+  (keymap-utils-keymap-set global-map
+    "C-@" #'popper-toggle
+    "M-@" #'popper-cycle
+    "C-M-@" #'popper-toggle-type
+    )
+#+end_src
+
+** switch-window
+複数ウィンドウを開いている時のウィンドウ間の移動を簡単にする。
+
+#+begin_src emacs-lisp
+  ;;;; switch-window ---------------------------------------------------
+  (package-install 'switch-window)
+  (setq switch-window-shortcut-style 'quail
+        switch-window-input-style 'minibuffer
+        switch-window-threshold 2
+        )
+  (keymap-utils-keymap-set global-map
+    "C-x o" #'switch-window
+    "C-x 1" #'switch-window-then-maximize
+    "C-x 2" #'switch-window-then-split-below
+    "C-x 3" #'switch-window-then-split-right
+    "C-x 0" #'switch-window-then-delete
+    "C-x 4 d" #'switch-window-then-dired
+    "C-x 4 f" #'switch-window-then-find-file
+    "C-x 4 m" #'switch-window-then-compose-mail
+    "C-x 4 r" #'switch-window-then-find-file-read-only
+    "C-x 4 C-f" #'switch-window-then-find-file
+    "C-x 4 C-o" #'switch-window-then-display-buffer
+    "C-x 4 0" #'switch-window-then-kill-buffer
+    )
+#+end_src
+
+** which-key
+キーコンボを忘れても何とかしてくれる。
+
+#+begin_src emacs-lisp
+  ;;;; which-key -------------------------------------------------------
+  (setopt
+   which-key-mode t
+   )
+#+end_src
+
+** blackout
+モードラインのモード表示を消す。
+
+#+begin_src emacs-lisp
+  ;;;; blackout --------------------------------------------------------
+  (package-install 'blackout)
+
+  (blackout 'eldoc-mode)
+  (blackout 'global-eldoc-mode)
+  (blackout 'whitespace-mode)
+  (blackout 'global-whitespace-mode)
+  (blackout 'which-key-mode)
+#+end_src
+
+* 全体を閉じる
+[[*設定で使う値の束縛][設定で使う値の束縛]]で開いたletを閉じる。
+
+#+begin_src emacs-lisp
+  ) ;設定全体を括るletをここで閉じる
+#+end_src

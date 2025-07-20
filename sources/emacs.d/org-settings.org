@@ -1,0 +1,247 @@
+#+title: org の設定
+#+author: yam-k
+#+language: ja
+
+* org
+** orgのデフォルトディレクトリ
+Dropboxが前提。
+
+#+begin_src emacs-lisp
+  ;;; org ==============================================================
+  ;;;; orgディレクトリ -------------------------------------------------
+  (setopt
+   org-directory (expand-file-name "~/Dropbox/Documents/org/")
+   )
+#+end_src
+
+** orgファイルの表示方法
+開いた時は見出しのみ表示、見出しのレベルごとにインデント。
+
+#+begin_src emacs-lisp
+  (setopt
+   org-startup-folded 'content
+   org-startup-indented t
+   )
+#+end_src
+
+** 祝祭日設定
+標準の祝日を表示せず、自分で用意したやつを使う。
+
+#+begin_src emacs-lisp
+  ;;;; diaryの場所 -----------------------------------------------------
+  (setopt
+   calendar-holidays nil
+   diary-file (expand-file-name "~/Dropbox/Documents/org/diary")
+   )
+#+end_src
+
+** キーバインド
+専用のキープレフィクスを作成しておく。
+
+#+begin_src emacs-lisp
+  ;;;; キーバインド ----------------------------------------------------
+  (keymap-utils-static-map-set "org" "o"
+    "a" #'org-agenda
+    "c" #'org-capture
+    "l" #'org-store-link
+    )
+#+end_src
+
+** TODOの状態の種類
+設定できるTODOの状態の種類。
+="|"= より前がアクティブ、後ろが完了の状態。
+
+#+begin_src emacs-lisp
+  ;;;; TODOの状態 ------------------------------------------------------
+  (setopt
+   org-todo-keywords '((sequence
+                        "TODO(t!)"   ;やるべきこと
+                        "WAIT(w@)"   ;反応待ち
+                        "SOMEDAY(s)" ;いつかやりたい
+                        "|"
+                        "DONE(d!)"   ;完了
+                        "CANCEL(c@)" ;やめた
+                        ))
+   )
+#+end_src
+
+** 挿入できるコードブロックの設定
+コードブロック挿入時に表示される選択肢の設定。
+
+#+begin_src emacs-lisp
+  ;;;; 挿入できるコードブロック ----------------------------------------
+  (setopt
+   org-structure-template-alist '(
+                                  ("c" . "center")
+                                  ("cl" . "src common-lisp")
+                                  ("C" . "comment")
+                                  ("e" . "example")
+                                  ("el" . "src emacs-lisp")
+                                  ("en" . "src emacs-lisp :tangle no")
+                                  ("E" . "export")
+                                  ("Ea" . "export ascii")
+                                  ("Eh" . "export html")
+                                  ("El" . "export latex")
+                                  ("q" . "quote")
+                                  ("s" . "src")
+                                  ("v" . "verse")
+                                  )
+   )
+#+end_src
+
+** キャプチャ
+キャプチャの選択肢の設定。
+org-journal用のは[[https://github.com/bastibe/org-journal][公式]]に書いてあるまま。
+
+#+begin_src emacs-lisp
+  ;;;; キャプチャ ------------------------------------------------------
+  (defun org-journal-find-location ()
+    (org-journal-new-entry t)
+    (unless (eq org-journal-file-type 'daily)
+      (org-narrow-to-subtree))
+    (goto-char (point-max)))
+
+  (setopt
+   org-capture-templates '(
+                           ("m" "メモ"
+                            entry (file "capture.org")
+                            "* %?\n%T\n%i"
+                            :empty-lines-before 1)
+                           ("t" "予定"
+                            entry (file "capture.org")
+                            "* TODO %?\n%^t\n%i"
+                            :empty-lines-before 1)
+                           ("j" "徒然"
+                            plain (function org-journal-find-location)
+                            "** %(format-time-string org-journal-time-format)%^{Title}\n%i%?%T"
+                            :jump-to-captured t :immediate-finish t)
+                           )
+   )
+#+end_src
+
+** アジェンダ
+*** アジェンダで表示するファイル
+アジェンダの表示を構成するファイル。
+
+#+begin_src emacs-lisp
+  ;;;; アジェンダ ------------------------------------------------------
+  (setopt
+   org-agenda-files `(
+                      ,(expand-file-name "capture.org" org-directory)
+                      ,@(directory-files (expand-file-name "journal/"
+                                                          org-directory)
+                                         t
+                                         (rx (= 4 num) ".org"))
+                      )
+   )
+#+end_src
+
+*** アジェンダで表示する日付
+標準だと、アメリカンな表示で使いにくいのでISOっぽく。
+
+#+begin_src emacs-lisp
+  ;;;; アジェンダの日付 ------------------------------------------------
+  (setopt
+   org-agenda-format-date "%F(%a)"
+   )
+#+end_src
+
+** エクスポート
+*** 基本
+=C-c e= で変換する先の設定。
+htmlizeはhtmlでエクスポートするのに必要。
+
+#+begin_src emacs-lisp
+  ;;;; エクスポート ----------------------------------------------------
+  (setopt
+   org-export-default-language "ja"
+   org-export-backends '(
+                         html
+                         latex
+                         odt
+                         )
+   )
+  (package-install 'htmlize)
+#+end_src
+
+*** pandocも利用できるようにする
+pandocを利用していろいろな形式で出力できるようにする。
+
+#+begin_src emacs-lisp
+  ;;;; pandoc ----------------------------------------------------------
+  (package-install 'ox-pandoc)
+  (with-eval-after-load 'ox
+    (require 'ox-pandoc))
+#+end_src
+
+** latex
+*** latexコンパイラ
+lualatexを使う。
+
+#+begin_src emacs-lisp
+  ;;;; latexコンパイラ -------------------------------------------------
+  (setopt org-latex-compiler "lualatex")
+#+end_src
+
+*** 文書クラス
+横書きと縦書きをとりあえず。
+
+#+begin_src emacs-lisp
+  ;;;; latex-classes ---------------------------------------------------
+  (with-eval-after-load 'ox-latex
+    (setopt
+     org-latex-classes '(("article" ;通常
+                          "\\documentclass[paper=a4,article]{jlreq}"
+                          ("\\section{%s}" . "\\section*{%s}")
+                          ("\\subsection{%s}" . "\\subsection*{%s}")
+                          ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+                          ("\\paragraph{%s}" . "\\paragraph*{%s}")
+                          ("\\subparagraph{%s}" . "\\subparagraph*{%s}"))
+                         ("book" ;文庫
+                          "\\documentclass[paper=a6,book,tate]{jlreq}"
+                          ("\\part{%s}" . "\\part*{%s}")
+                          ("\\section{%s}" . "\\section*{%s}")
+                          ("\\subsection{%s}" . "\\subsection*{%s}")
+                          ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+                          ("\\paragraph{%s}" . "\\paragraph*{%s}")
+                          ("\\subparagraph{%s}" . "\\subparagraph*{%s}"))
+                         )
+     org-latex-default-class "article"
+     )
+    )
+#+end_src
+
+* org-journal
+** インストール
+日記を書く用。
+
+#+begin_src emacs-lisp
+  ;;; org-journal ======================================================
+  ;;;; インストール ----------------------------------------------------
+  (package-install 'org-journal)
+#+end_src
+
+** ジャーナルファイルの設定
+年ごとに作る。
+
+#+begin_src emacs-lisp
+  ;;;; ジャーナルファイル ----------------------------------------------
+  (setopt
+   org-journal-dir (expand-file-name "~/Dropbox/Documents/org/journal")
+   org-journal-file-type 'yearly
+   org-journal-file-format "%Y.org"
+   org-journal-file-header "#+tite: %Y年\n"
+   )
+#+end_src
+
+** 日時の形式
+ISOっぽく。
+
+#+begin_src emacs-lisp
+  ;;;; 日付の書式 ------------------------------------------------------
+  (setopt
+   org-journal-date-format "%F %A"
+   ;; org-journal-time-format "%R "
+   org-journal-time-format ""
+   )
+#+end_src

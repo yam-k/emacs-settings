@@ -1,0 +1,9 @@
+sources/emacs.d/*
+sources/emacs.d/*/
+!sources/emacs.d/early-init.el
+!sources/emacs.d/init.el
+!sources/emacs.d/*.org
+!sources/emacs.d/skk-jisyo/
+!sources/emacs.d/skk-jisyo/*
+!sources/emacs.d/utils/
+!sources/emacs.d/utils/*

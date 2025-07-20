@@ -1,0 +1,6 @@
+#+title: README.org
+#+author: yam-k
+#+language: ja
+
+* ここにあるもの
+普段使いのEmacsの設定。
